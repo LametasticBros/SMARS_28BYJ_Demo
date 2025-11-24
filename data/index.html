@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMARS</title>
+<style>
+body { display: flex; flex-direction: column; align-items: center; font-family: Arial; margin-top: 50px; }
+button { width: 100px; height: 100px; font-size: 24px; margin: 10px; }
+.row { display: flex; }
+
+#distance {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 18px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+</style>
+</head>
+<body>
+<div id="distance">Distanz: 0 cm</div> <!-- Hier wird die Distanz angezeigt -->
+<div class="row">
+    <button id="forward">↑</button>
+</div>
+<div class="row">
+    <button id="left">←</button>
+    <button id="stop">■</button>
+    <button id="right">→</button>
+</div>
+<div class="row">
+    <button id="backward">↓</button>
+</div>
+
+<script>
+const buttons = ["forward","backward","left","right"];
+let intervalId = null;
+
+function sendCommand(dir) {
+    fetch("/move?dir=" + dir).catch(err => console.log(err));
+}
+
+buttons.forEach(id => {
+    const btn = document.getElementById(id);
+    btn.addEventListener("mousedown", () => {
+        sendCommand(id);
+        intervalId = setInterval(() => sendCommand(id), 500);
+    });
+    btn.addEventListener("mouseup", () => { clearInterval(intervalId); sendCommand("stop"); });
+    btn.addEventListener("mouseleave", () => { clearInterval(intervalId); sendCommand("stop"); });
+
+    // Mobile
+    btn.addEventListener("touchstart", (e) => {
+        sendCommand(id);
+        intervalId = setInterval(() => sendCommand(id), 500);
+    });
+    btn.addEventListener("touchend", (e) => { clearInterval(intervalId); sendCommand("stop"); });
+});
+
+document.getElementById("stop").addEventListener("click", () => sendCommand("stop"));
+
+function updateDistance() {
+    fetch("/distance")
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("distance").innerText = "Distanz: " + data + " cm";
+        })
+        .catch(err => console.log(err));
+}
+
+setInterval(updateDistance, 1000); // 1Hz
+</script>
+</body>
+</html>
