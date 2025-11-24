@@ -51,11 +51,11 @@ HC_SR04 Ultrasonic(UltraSonicTX, UltraSonicRX);
 
 void handleOLED() {
   display.clearDisplay();
-  display.setRotation(2);       // Use full 256 char 'Code Page 437' font
-  display.cp437(true); 
+  display.setRotation(2);
+  display.cp437(true);          // Use full 256 char 'Code Page 437' font
   display.setTextSize(2);       // Normal 1:1 pixel scale
   display.setTextColor(SSD1306_WHITE); // Draw white text
-  display.setCursor(35, 5);     // Start at top-left corner
+  display.setCursor(35, 5);
   display.println(F("Happy"));
   display.setCursor(35, 25);
   display.println(F("B-Day!"));
@@ -147,7 +147,6 @@ void loop() {
 
   EVERY_N_MILLISECONDS(500)
   {
-    Serial.println(currentDir);
     if(Ultrasonic.isFinished()){
       l_distance = Ultrasonic.getRange();
       Ultrasonic.start();
